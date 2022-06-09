@@ -123,8 +123,10 @@ secodeTest 메서드 상단에 @Transactional 또는 @Transactional(propagation 
 컨트롤러에서 firstTest 호출 시도 -> @Transactional(readonly = true) 적용 -> firstTest 호출
 -> secondTest 호출 -> save 호출 시도 -> @Transactional 적용 -> save 호출 -> 이후 생략 -> 종료
 
-컨트롤러에서 firstTest 메서드를 호출할 때 별도의 트랜잭션 처리가 없어서 클래스 상단에 있는 @Transactional(readonly = true)가 적용된다
-이후 secondTest 메서드를 호출하게되면 프록시를 통해서 호출되는것이 아닌 내부에서 호출하는 것이기 때문에 별도의 트랜잭션이 생성되지 않는다
+컨트롤러에서 firstTest 메서드를 호출할 때 별도의 트랜잭션 처리가 없어서 
+클래스 상단에 있는 @Transactional(readonly = true)가 적용된다
+이후 secondTest 메서드를 호출하게되면 프록시를 통해서 호출되는것이 아닌 내부에서 호출하는 것이기 때문에 
+별도의 트랜잭션이 생성되지 않는다
 
 그리고 save 메서드를 호출할땐 프록시 객체를 통하여 호출이 되어 @Transactional이 적용되긴 하나,
 @Transactional의 propagation속성 기본값이 REQUIRED라 부모 트랜잭션에 같이 묶이게 되어 Insert가 발생하지 않는 것이다
@@ -174,5 +176,6 @@ firstTest 메서드 상단에 @Transactional이 존재하므로 해당 어노테
 - 2.클래스 분리
 ```
 만약 트랜잭션을 분리해야하는 경우
-firstTest와 secondTest를 별도의 클래스로 분리하여 호출할 땐 DI를 통해 주입받은 프록시 객체를 통하여 호출하는 방향으로 설계하면 된다.
+firstTest와 secondTest를 별도의 클래스로 분리하여 호출할 땐 DI를 통해 
+주입받은 프록시 객체를 통하여 호출하는 방향으로 설계하면 된다.
 ```
