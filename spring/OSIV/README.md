@@ -91,8 +91,39 @@ spring:
 그래도 이렇게 한번 고민해보고 적용해보니 기존에 신경쓰지 않았던 부분을 알게되어 한층 더 성장한 느낌이 들어 뿌듯한 시간이였다😆
 
 
-🍖아참 그리고 OSIV기능을 사용하지 않을땐 Command(필수 비즈니스)와 Query(화면에 특화된 조회성 비즈니스)를 구분하여 관리해주면 좋다고 한다!
+🍖아참 그리고 OSIV기능을 사용하지 않을땐 Command(필수 비즈니스)와 Query(화면에 특화된 조회성 비즈니스)를 구분하여 관리해주면 좋다고 한다!  
+🍖아아 그리고 HikariCp에서 connection 가져오고 반납하는부분 확인하고 싶을 땐
+```java
+  // Connection 가져오는 부분
+  // HikariPoll.java getConnection 메서드 172 라인
+  
+   public Connection getConnection(final long hardTimeout) throws SQLException
+   {
+      suspendResumeLock.acquire();
+      final long startTime = currentTime();
 
+      try {
+         long timeout = hardTimeout;
+         do {
+            PoolEntry poolEntry = connectionBag.borrow(timeout, MILLISECONDS);
+            if (poolEntry == null) {
+               break; // We timed out... break and throw exception
+            }
+    ...
+```
+```java
+  // Connection 반납하는 부분
+  // ProxyConnection.java close 메서드 247라인
 
+   public final void close() throws SQLException
+   {
+      // Closing statements can cause connection eviction, so this must run before the conditional below
+      closeStatements();
 
+      if (delegate != ClosedConnection.CLOSED_CONNECTION) {
+         leakTask.cancel();
 
+         try {
+            if (isCommitStateDirty && !isAutoCommit) {
+```
+요기 디버그 걸면 DB 커넥션 가져오고 반납하고 하는걸 확인할 수 있다
